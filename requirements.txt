@@ -1,0 +1,8 @@
+fastapi
+pydantic
+web3
+python-dotenv
+uvicorn
+eth-brownie
+pycoingecko
+requests

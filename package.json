@@ -1,0 +1,16 @@
+{
+  "name": "mm",
+  "version": "1.0.0",
+  "description": "A cutting-edge decentralized prediction platform on the Base network, reimagining how users engage with high-stakes outcomes.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "@openzeppelin/contracts": "^5.2.0"
+  }
+}
