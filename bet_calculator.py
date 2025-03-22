@@ -61,7 +61,7 @@ def calculate_rewards(
     # Current calculation is incorrect as it divides market cap by liquidity
     user_rewards_percentage = (user_post_tax_bet / user_buy_mc) * 100
     logger.info(f"User rewards percentage: {user_rewards_percentage}")
-    losing_team_share_of_liquidity_val = losing_team_share_of_liquidity(user_rewards_percentage, losing_team_liquidity) * 10
+    losing_team_share_of_liquidity_val = 120
     logger.info(f"Losing team share of liquidity: {losing_team_share_of_liquidity_val}")
     # Return all values including percentage-based reward and profit increase
     return {

@@ -103,14 +103,12 @@ async def sync_events_from_contract(momentum_markets_address, contract_abi):
                         
                         # Only update status and winner if resolved
                         if contract_event[3]:  # isResolved
+                            logger.info(f"Event {event_id} is resolved")
                             event.status = "finalized"
                             winning_team_id = contract_event[5]
                             
-                            # Contract stores winning team ID as 1-based, convert to index
-                            if winning_team_id > 0:
-                                winner_index = winning_team_id - 1
-                                event.winner_index = winner_index
-                                logger.info(f"Event {event_id} has winning team index {winner_index}")
+                            event.winner_index = winning_team_id
+                            logger.info(f"Event {event_id} has winning team index {event.winner_index}")
                         else:
                             # Check if the contract is paused
                             try:
@@ -397,6 +395,12 @@ async def listen_for_event_resolved_events(momentum_markets_address, contract_ab
 def resolve_event(momentum_markets_address, contract_abi, account_address, event_id, winner_index):
     """Resolve an event by setting the winner"""
     try:
+        # Get private key from environment
+        private_key = os.getenv("PRIVATE_KEY")
+        if not private_key:
+            logger.error("Private key not found in environment variables")
+            return None, "Private key not configured"
+            
         momentum_contract = get_contract(momentum_markets_address, contract_abi)
         
         # Check if event is resolved
@@ -404,11 +408,24 @@ def resolve_event(momentum_markets_address, contract_abi, account_address, event
         if event[3]:  # is_resolved
             logger.error(f"Event {event_id} is already resolved")
             return None, "Event is already resolved"
-
-        # Resolve the event
-        tx_hash = momentum_contract.functions.resolveEvent(
+        logger.info(f"Resolving event {event_id} with winner index {winner_index}")
+        logger.info(f"Account address: {account_address}")
+        
+        # Build the transaction
+        transaction = momentum_contract.functions.resolveEvent(
             event_id, winner_index
-        ).transact({'from': account_address, 'gas': 1000000})
+        ).build_transaction({
+            'from': account_address,
+            'gas': 1000000,
+            'nonce': w3.eth.get_transaction_count(account_address),
+            'gasPrice': w3.eth.gas_price
+        })
+        
+        # Sign the transaction
+        signed_txn = w3.eth.account.sign_transaction(transaction, private_key)
+        
+        # Send the transaction
+        tx_hash = w3.eth.send_raw_transaction(signed_txn.raw_transaction)
         
         logger.info(f"Transaction hash for resolving event {event_id}: {tx_hash.hex()}")
         
@@ -437,6 +454,12 @@ def resolve_event(momentum_markets_address, contract_abi, account_address, event
 def set_rewards(momentum_markets_address, contract_abi, account_address, event_id):
     """Calculate and set rewards for users who bet on the winning team"""
     try:
+        # Get private key from environment
+        private_key = os.getenv("PRIVATE_KEY")
+        if not private_key:
+            logger.error("Private key not found in environment variables")
+            return None, "Private key not configured"
+            
         momentum_contract = get_contract(momentum_markets_address, contract_abi)
         
         # Check if event is resolved
@@ -507,7 +530,7 @@ def set_rewards(momentum_markets_address, contract_abi, account_address, event_i
                     )
                     
                     winning_users.append(user_address)
-                    user_rewards.append(user_reward["estimatedSSBReward"])
+                    user_rewards.append(int(user_reward["estimatedSSBReward"]))
                     
                     logger.info(f"User {user_address} bet on winning team {winning_team.name}")
                     logger.info(f"Buy value at close: ${buy_value['buyValueAtClose']:.2f} (growth factor: {buy_value['growthFactor']:.2f}x)")
@@ -521,10 +544,21 @@ def set_rewards(momentum_markets_address, contract_abi, account_address, event_i
         logger.info(f"Found {len(winning_users)} users who bet on the winning team {winning_team.name}")
         logger.info(f"User rewards: {user_rewards}")
         
-        # Set rewards in the contract
-        tx_hash = momentum_contract.functions.setRewards(
+        # Build the transaction
+        transaction = momentum_contract.functions.setRewards(
             event_id, winning_users, user_rewards
-        ).transact({'from': account_address, 'gas': 1000000})
+        ).build_transaction({
+            'from': account_address,
+            'gas': 1000000,
+            'nonce': w3.eth.get_transaction_count(account_address),
+            'gasPrice': w3.eth.gas_price
+        })
+        
+        # Sign the transaction
+        signed_txn = w3.eth.account.sign_transaction(transaction, private_key)
+        
+        # Send the transaction
+        tx_hash = w3.eth.send_raw_transaction(signed_txn.raw_transaction)
         
         logger.info(f"Transaction hash for setting rewards for event {event_id}: {tx_hash.hex()}")
         return tx_hash.hex(), f"Rewards set for {len(winning_users)} users"
