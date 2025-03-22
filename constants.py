@@ -9,9 +9,9 @@ EVENTS = [
     event_time="2025-03-23 09:00:00",
     event_location="02 Arena, London, UK",
     teams=[
-      Team(name="Leon Edwards", contract_address=NZDD_CONTRACT_ADDRESS),
-      Team(name="Sean Brady", contract_address=NZDD_CONTRACT_ADDRESS)
-    ]
+      Team(id=1, name="Leon Edwards"),
+      Team(id=2, name="Sean Brady")
+    ],
   ),
   Event(
     id=2,
@@ -19,8 +19,8 @@ EVENTS = [
     event_time="2025-03-23 09:00:00",
     event_location="02 Arena, London, UK",
     teams=[
-      Team(name="Jan Blachowicz", contract_address=NZDD_CONTRACT_ADDRESS),
-      Team(name="Carlos Ulberg", contract_address=NZDD_CONTRACT_ADDRESS)
-    ]
+      Team(id=1, name="Jan Blachowicz"),
+      Team(id=2, name="Carlos Ulberg")
+    ],
   )
 ]

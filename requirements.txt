@@ -4,3 +4,4 @@ web3
 python-dotenv
 uvicorn
 requests
+pandas
