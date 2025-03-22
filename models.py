@@ -12,6 +12,8 @@ class Team(BaseModel):
 class Event(BaseModel):
     id: Optional[int] = None
     name: str
+    category: Optional[str] = None
+    tag: Optional[str] = None
     description: Optional[str] = None
     event_time: Optional[str] = None
     event_location: Optional[str] = None
