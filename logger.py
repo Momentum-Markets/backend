@@ -6,7 +6,7 @@ import sys
 # Create logs directory if it doesn't exist
 os.makedirs('logs', exist_ok=True)
 
-def setup_logger(name='erc20_deployer', log_level=logging.INFO):
+def setup_logger(name='web3hackathon', log_level=logging.INFO):
     """
     Set up and configure logger with both file and console handlers
     
